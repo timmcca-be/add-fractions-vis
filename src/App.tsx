@@ -100,9 +100,30 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
 
     return (
         <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
-            <Grid orientation="column" counts={[aCount]} />
-            <Grid orientation="row" counts={[bCount]} />
-            <Grid orientation="row" counts={[bCount, aCount]} />
+            <Grid
+                orientation="column"
+                counts={[aCount]}
+                separators={{
+                    shouldShowHorizontal: false,
+                    shouldShowVertical: true,
+                }}
+            />
+            <Grid
+                orientation="row"
+                counts={[bCount]}
+                separators={{
+                    shouldShowHorizontal: true,
+                    shouldShowVertical: false,
+                }}
+            />
+            <Grid
+                orientation="row"
+                counts={[bCount, aCount]}
+                separators={{
+                    shouldShowHorizontal: true,
+                    shouldShowVertical: true,
+                }}
+            />
         </div>
     );
 }
@@ -122,9 +143,14 @@ interface GridCount {
 
 function Grid({
     orientation,
+    separators,
     counts,
 }: {
     orientation: "column" | "row";
+    separators: {
+        shouldShowVertical: boolean;
+        shouldShowHorizontal: boolean;
+    };
     counts: GridCount[];
 }) {
     const remainder =
@@ -142,6 +168,12 @@ function Grid({
                 gridAutoFlow: orientation,
                 borderTop: "1px solid black",
                 borderLeft: "1px solid black",
+                borderBottom: separators.shouldShowHorizontal
+                    ? undefined
+                    : "1px solid black",
+                borderRight: separators.shouldShowVertical
+                    ? undefined
+                    : "1px solid black",
             }}
         >
             {countsWithRemainder.map((count) =>
@@ -152,8 +184,14 @@ function Grid({
                                 <div
                                     style={{
                                         backgroundColor: count.color,
-                                        borderBottom: "1px solid black",
-                                        borderRight: "1px solid black",
+                                        borderBottom:
+                                            separators.shouldShowHorizontal
+                                                ? "1px solid black"
+                                                : undefined,
+                                        borderRight:
+                                            separators.shouldShowVertical
+                                                ? "1px solid black"
+                                                : undefined,
                                     }}
                                     key={index}
                                 />
