@@ -99,11 +99,11 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
     const bCount: GridCount = { count: bNumRows, color: "blue" };
 
     return (
-        <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
-            <Grid orientation="column" counts={[aCount]} />
-            <Grid orientation="row" counts={[bCount]} />
-            <Grid orientation="row" counts={[bCount, aCount]} />
-        </div>
+        <>
+            <Grid counts={[aCount]} />
+            <Grid counts={[bCount]} />
+            <Grid counts={[bCount, aCount]} />
+        </>
     );
 }
 
@@ -120,13 +120,7 @@ interface GridCount {
     color: "red" | "blue";
 }
 
-function Grid({
-    orientation,
-    counts,
-}: {
-    orientation: "column" | "row";
-    counts: GridCount[];
-}) {
+function Grid({ counts }: { counts: GridCount[] }) {
     const remainder =
         gridDimension - counts.reduce((acc, count) => acc + count.count, 0);
     const countsWithRemainder = [
@@ -137,29 +131,22 @@ function Grid({
         <div
             style={{
                 display: "grid",
-                gridTemplateRows: `repeat(${gridDimension}, 0.5rem)`,
-                gridTemplateColumns: `repeat(${gridDimension}, 0.5rem)`,
-                gridAutoFlow: orientation,
+                gridTemplateColumns: `repeat(${gridDimension}, 1rem)`,
+                height: "1rem",
                 borderTop: "1px solid black",
+                borderBottom: "1px solid black",
                 borderLeft: "1px solid black",
             }}
         >
             {countsWithRemainder.map((count) =>
                 Array.from({ length: count.count }).map((_, index) => (
-                    <Fragment key={index}>
-                        {Array.from({ length: gridDimension }).map(
-                            (_, index) => (
-                                <div
-                                    style={{
-                                        backgroundColor: count.color,
-                                        borderBottom: "1px solid black",
-                                        borderRight: "1px solid black",
-                                    }}
-                                    key={index}
-                                />
-                            )
-                        )}
-                    </Fragment>
+                    <div
+                        style={{
+                            backgroundColor: count.color,
+                            borderRight: "1px solid black",
+                        }}
+                        key={index}
+                    />
                 ))
             )}
         </div>
