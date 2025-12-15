@@ -65,11 +65,12 @@ const blue = "#08f";
 const red = "#f44";
 
 function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
-    if (
-        a.numerator * b.denominator + b.numerator * a.denominator >
-        a.denominator * b.denominator
-    ) {
-        return <p>Expression sums to more than 1.</p>;
+    if (a.numerator > a.denominator || b.numerator > b.denominator) {
+        return <p>Improper fractions are not supported.</p>;
+    }
+
+    if (a.denominator === 0 || b.denominator === 0) {
+        return <p>Denominator cannot be zero.</p>;
     }
 
     const gridStyle = {
@@ -81,8 +82,20 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
         gridTemplateColumns: `repeat(${a.denominator}, ${visualScale}rem)`,
     };
 
+    const numOverflowBlocks =
+        a.numerator * b.denominator +
+        b.numerator * a.denominator -
+        a.denominator * b.denominator;
+
     return (
-        <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "1rem",
+                alignItems: "start",
+            }}
+        >
             <div style={gridStyle}>
                 {Array.from({ length: a.denominator }).map((_, index) => (
                     <div
@@ -121,35 +134,86 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
                     </div>
                 ))}
             </div>
-            <div style={gridStyle}>
-                {Array.from({ length: b.denominator }).map((_, bIndex) => (
-                    <Fragment key={bIndex}>
-                        {Array.from({ length: a.denominator }).map(
-                            (_, aIndex) => {
-                                const color = getColor(a, b, aIndex, bIndex);
-                                return (
-                                    <div
-                                        key={aIndex}
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            backgroundColor: color,
-                                        }}
-                                    >
-                                        {color === red && (
-                                            <IconStarFilled color="white" />
-                                        )}
-                                        {color === blue && (
-                                            <IconMoonFilled color="white" />
-                                        )}
-                                    </div>
-                                );
-                            }
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1rem",
+                }}
+            >
+                <div style={gridStyle}>
+                    {Array.from({ length: b.denominator }).map((_, bIndex) => (
+                        <Fragment key={bIndex}>
+                            {Array.from({ length: a.denominator }).map(
+                                (_, aIndex) => (
+                                    <Block
+                                        aIndex={aIndex}
+                                        bIndex={bIndex}
+                                        a={a}
+                                        b={b}
+                                    />
+                                )
+                            )}
+                        </Fragment>
+                    ))}
+                </div>
+                {numOverflowBlocks > 0 && (
+                    <div style={gridStyle}>
+                        {Array.from({ length: b.denominator }).map(
+                            (_, bIndex) => (
+                                <Fragment key={bIndex}>
+                                    {Array.from({ length: a.denominator }).map(
+                                        (_, aIndex) => (
+                                            <Block
+                                                aIndex={aIndex}
+                                                bIndex={bIndex}
+                                                a={{
+                                                    numerator:
+                                                        numOverflowBlocks /
+                                                        b.denominator,
+                                                    denominator: a.denominator,
+                                                }}
+                                                b={{
+                                                    numerator: 0,
+                                                    denominator: b.denominator,
+                                                }}
+                                            />
+                                        )
+                                    )}
+                                </Fragment>
+                            )
                         )}
-                    </Fragment>
-                ))}
+                    </div>
+                )}
             </div>
+        </div>
+    );
+}
+
+function Block({
+    aIndex,
+    bIndex,
+    a,
+    b,
+}: {
+    aIndex: number;
+    bIndex: number;
+    a: Fraction;
+    b: Fraction;
+}) {
+    const color = getColor(a, b, aIndex, bIndex);
+    return (
+        <div
+            key={aIndex}
+            style={{
+                backgroundColor: color,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            {color === red && <IconStarFilled color="white" />}
+            {color === blue && <IconMoonFilled color="white" />}
         </div>
     );
 }
@@ -159,10 +223,10 @@ function getColor(a: Fraction, b: Fraction, aIndex: number, bIndex: number) {
         return blue;
     }
     const segmentSize = gcd(a.denominator, b.denominator);
+    const numRedSegments = (a.numerator * b.denominator) / segmentSize;
     const bottomSegmentIndex =
         Math.floor(aIndex / segmentSize) * (b.denominator - b.numerator) +
         (bIndex - b.numerator);
-    const numRedSegments = (a.numerator * b.denominator) / segmentSize;
     if (bottomSegmentIndex < numRedSegments) {
         return red;
     }
