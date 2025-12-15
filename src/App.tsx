@@ -71,14 +71,14 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
         );
     }
 
-    // const aScaled = {
-    //     numerator: a.numerator * (commonDenominator / a.denominator),
-    //     denominator: commonDenominator,
-    // };
-    // const bScaled = {
-    //     numerator: b.numerator * (commonDenominator / b.denominator),
-    //     denominator: commonDenominator,
-    // };
+    const aScaled = {
+        numerator: a.numerator * (commonDenominator / a.denominator),
+        denominator: commonDenominator,
+    };
+    const bScaled = {
+        numerator: b.numerator * (commonDenominator / b.denominator),
+        denominator: commonDenominator,
+    };
     // const result = {
     //     numerator: aScaled.numerator + bScaled.numerator,
     //     denominator: commonDenominator,
@@ -102,7 +102,13 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
         <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
             <Grid
                 orientation="column"
-                counts={[aCount]}
+                counts={[
+                    {
+                        count: a.numerator,
+                        color: "red",
+                    },
+                ]}
+                denominator={a.denominator}
                 separators={{
                     shouldShowHorizontal: false,
                     shouldShowVertical: true,
@@ -110,7 +116,13 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
             />
             <Grid
                 orientation="row"
-                counts={[bCount]}
+                counts={[
+                    {
+                        count: b.numerator,
+                        color: "blue",
+                    },
+                ]}
+                denominator={b.denominator}
                 separators={{
                     shouldShowHorizontal: true,
                     shouldShowVertical: false,
@@ -118,10 +130,20 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
             />
             <Grid
                 orientation="row"
-                counts={[bCount, aCount]}
+                counts={[
+                    {
+                        count: bScaled.numerator,
+                        color: "blue",
+                    },
+                    {
+                        count: aScaled.numerator,
+                        color: "red",
+                    },
+                ]}
+                denominator={commonDenominator}
                 separators={{
                     shouldShowHorizontal: true,
-                    shouldShowVertical: true,
+                    shouldShowVertical: false,
                 }}
             />
         </div>
@@ -145,6 +167,7 @@ function Grid({
     orientation,
     separators,
     counts,
+    denominator,
 }: {
     orientation: "column" | "row";
     separators: {
@@ -152,9 +175,10 @@ function Grid({
         shouldShowHorizontal: boolean;
     };
     counts: GridCount[];
+    denominator: number;
 }) {
     const remainder =
-        gridDimension - counts.reduce((acc, count) => acc + count.count, 0);
+        denominator - counts.reduce((acc, count) => acc + count.count, 0);
     const countsWithRemainder = [
         ...counts,
         { count: remainder, color: "white" },
@@ -163,40 +187,39 @@ function Grid({
         <div
             style={{
                 display: "grid",
-                gridTemplateRows: `repeat(${gridDimension}, 0.5rem)`,
-                gridTemplateColumns: `repeat(${gridDimension}, 0.5rem)`,
+                width: "30rem",
+                height: "30rem",
+                gridTemplateRows: `repeat(${denominator}, 1fr)`,
+                gridTemplateColumns: `repeat(${denominator}, 1fr)`,
                 gridAutoFlow: orientation,
-                borderTop: "1px solid black",
-                borderLeft: "1px solid black",
+                borderTop: "2px solid black",
+                borderLeft: "2px solid black",
                 borderBottom: separators.shouldShowHorizontal
                     ? undefined
-                    : "1px solid black",
+                    : "2px solid black",
                 borderRight: separators.shouldShowVertical
                     ? undefined
-                    : "1px solid black",
+                    : "2px solid black",
             }}
         >
             {countsWithRemainder.map((count) =>
                 Array.from({ length: count.count }).map((_, index) => (
                     <Fragment key={index}>
-                        {Array.from({ length: gridDimension }).map(
-                            (_, index) => (
-                                <div
-                                    style={{
-                                        backgroundColor: count.color,
-                                        borderBottom:
-                                            separators.shouldShowHorizontal
-                                                ? "1px solid black"
-                                                : undefined,
-                                        borderRight:
-                                            separators.shouldShowVertical
-                                                ? "1px solid black"
-                                                : undefined,
-                                    }}
-                                    key={index}
-                                />
-                            )
-                        )}
+                        {Array.from({ length: denominator }).map((_, index) => (
+                            <div
+                                style={{
+                                    backgroundColor: count.color,
+                                    borderBottom:
+                                        separators.shouldShowHorizontal
+                                            ? "2px solid black"
+                                            : undefined,
+                                    borderRight: separators.shouldShowVertical
+                                        ? "2px solid black"
+                                        : undefined,
+                                }}
+                                key={index}
+                            />
+                        ))}
                     </Fragment>
                 ))
             )}
