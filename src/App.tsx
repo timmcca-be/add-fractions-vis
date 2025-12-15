@@ -64,18 +64,12 @@ const blue = "#08f";
 const red = "#f44";
 
 function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
-    // const aScaled = {
-    //     numerator: a.numerator * (commonDenominator / a.denominator),
-    //     denominator: commonDenominator,
-    // };
-    // const bScaled = {
-    //     numerator: b.numerator * (commonDenominator / b.denominator),
-    //     denominator: commonDenominator,
-    // };
-    // const result = {
-    //     numerator: aScaled.numerator + bScaled.numerator,
-    //     denominator: commonDenominator,
-    // };
+    if (
+        a.numerator * b.denominator + b.numerator * a.denominator >
+        a.denominator * b.denominator
+    ) {
+        return <p>Expression sums to more than 1.</p>;
+    }
 
     const gridStyle = {
         display: "grid",
@@ -144,7 +138,6 @@ function getColor(a: Fraction, b: Fraction, aIndex: number, bIndex: number) {
     const bottomBlockIndex =
         aIndex * (b.denominator - b.numerator) + (bIndex - b.numerator);
     const numRedBlocks = a.numerator * b.denominator;
-    console.log(a, b, aIndex, bIndex, bottomBlockIndex, numRedBlocks);
     if (bottomBlockIndex < numRedBlocks) {
         return red;
     }
