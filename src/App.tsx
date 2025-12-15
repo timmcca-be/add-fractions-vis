@@ -99,11 +99,11 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
     const bCount: GridCount = { count: bNumRows, color: "blue" };
 
     return (
-        <>
-            <Grid counts={[aCount]} />
-            <Grid counts={[bCount]} />
-            <Grid counts={[bCount, aCount]} />
-        </>
+        <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+            <Grid orientation="column" counts={[aCount]} />
+            <Grid orientation="row" counts={[bCount]} />
+            <Grid orientation="row" counts={[bCount, aCount]} />
+        </div>
     );
 }
 
@@ -120,7 +120,13 @@ interface GridCount {
     color: "red" | "blue";
 }
 
-function Grid({ counts }: { counts: GridCount[] }) {
+function Grid({
+    orientation,
+    counts,
+}: {
+    orientation: "column" | "row";
+    counts: GridCount[];
+}) {
     const remainder =
         gridDimension - counts.reduce((acc, count) => acc + count.count, 0);
     const countsWithRemainder = [
@@ -131,22 +137,29 @@ function Grid({ counts }: { counts: GridCount[] }) {
         <div
             style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${gridDimension}, 1rem)`,
-                height: "1rem",
+                gridTemplateRows: `repeat(${gridDimension}, 0.5rem)`,
+                gridTemplateColumns: `repeat(${gridDimension}, 0.5rem)`,
+                gridAutoFlow: orientation,
                 borderTop: "1px solid black",
-                borderBottom: "1px solid black",
                 borderLeft: "1px solid black",
             }}
         >
             {countsWithRemainder.map((count) =>
                 Array.from({ length: count.count }).map((_, index) => (
-                    <div
-                        style={{
-                            backgroundColor: count.color,
-                            borderRight: "1px solid black",
-                        }}
-                        key={index}
-                    />
+                    <Fragment key={index}>
+                        {Array.from({ length: gridDimension }).map(
+                            (_, index) => (
+                                <div
+                                    style={{
+                                        backgroundColor: count.color,
+                                        borderBottom: "1px solid black",
+                                        borderRight: "1px solid black",
+                                    }}
+                                    key={index}
+                                />
+                            )
+                        )}
+                    </Fragment>
                 ))
             )}
         </div>
