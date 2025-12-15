@@ -1,8 +1,7 @@
 import { useState, Fragment } from "react";
 
-const gridDimension = 60;
 const expressionPattern =
-    /^\s*(?<numerator1>\d+)\s*\/(?<denominator1>\d+)\s*\+\s*(?<numerator2>\d+)\s*\/?(?<denominator2>\d+)?\s*$/;
+    /^\s*(?<numerator1>\d+)\s*\/(?<denominator1>\d+)\s*\+\s*(?<numerator2>\d+)\s*\/(?<denominator2>\d+)\s*$/;
 interface ExpressionGroups {
     numerator1: string;
     denominator1: string;
@@ -60,171 +59,96 @@ interface Fraction {
     denominator: number;
 }
 
-function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
-    const commonDenominator = lcm(a.denominator, b.denominator);
-    if (gridDimension % commonDenominator !== 0) {
-        return (
-            <p>
-                This expression cannot be displayed on a {gridDimension}x
-                {gridDimension} grid
-            </p>
-        );
-    }
+const visualScale = 3;
+const blue = "#08f";
+const red = "#f44";
 
-    const aScaled = {
-        numerator: a.numerator * (commonDenominator / a.denominator),
-        denominator: commonDenominator,
-    };
-    const bScaled = {
-        numerator: b.numerator * (commonDenominator / b.denominator),
-        denominator: commonDenominator,
-    };
+function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
+    // const aScaled = {
+    //     numerator: a.numerator * (commonDenominator / a.denominator),
+    //     denominator: commonDenominator,
+    // };
+    // const bScaled = {
+    //     numerator: b.numerator * (commonDenominator / b.denominator),
+    //     denominator: commonDenominator,
+    // };
     // const result = {
     //     numerator: aScaled.numerator + bScaled.numerator,
     //     denominator: commonDenominator,
     // };
 
-    const aNumColumns = a.numerator * (gridDimension / a.denominator);
-    const bNumRows = b.numerator * (gridDimension / b.denominator);
-    if (aNumColumns + bNumRows > gridDimension) {
-        return (
-            <p>
-                The result of this expression is greater than 1, so it cannot be
-                displayed.
-            </p>
-        );
-    }
-
-    const aCount: GridCount = { count: aNumColumns, color: "red" };
-    const bCount: GridCount = { count: bNumRows, color: "blue" };
+    const gridStyle = {
+        display: "grid",
+        border: "2px solid black",
+        gap: "2px",
+        backgroundColor: "black",
+        gridTemplateRows: `repeat(${b.denominator}, ${visualScale}rem)`,
+        gridTemplateColumns: `repeat(${a.denominator}, ${visualScale}rem)`,
+    };
 
     return (
         <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
-            <Grid
-                orientation="column"
-                counts={[
-                    {
-                        count: a.numerator,
-                        color: "red",
-                    },
-                ]}
-                denominator={a.denominator}
-                separators={{
-                    shouldShowHorizontal: false,
-                    shouldShowVertical: true,
-                }}
-            />
-            <Grid
-                orientation="row"
-                counts={[
-                    {
-                        count: b.numerator,
-                        color: "blue",
-                    },
-                ]}
-                denominator={b.denominator}
-                separators={{
-                    shouldShowHorizontal: true,
-                    shouldShowVertical: false,
-                }}
-            />
-            <Grid
-                orientation="row"
-                counts={[
-                    {
-                        count: bScaled.numerator,
-                        color: "blue",
-                    },
-                    {
-                        count: aScaled.numerator,
-                        color: "red",
-                    },
-                ]}
-                denominator={commonDenominator}
-                separators={{
-                    shouldShowHorizontal: true,
-                    shouldShowVertical: false,
-                }}
-            />
-        </div>
-    );
-}
-
-function gcd(a: number, b: number): number {
-    return b === 0 ? a : gcd(b, a % b);
-}
-
-function lcm(a: number, b: number): number {
-    return (a * b) / gcd(a, b);
-}
-
-interface GridCount {
-    count: number;
-    color: "red" | "blue";
-}
-
-function Grid({
-    orientation,
-    separators,
-    counts,
-    denominator,
-}: {
-    orientation: "column" | "row";
-    separators: {
-        shouldShowVertical: boolean;
-        shouldShowHorizontal: boolean;
-    };
-    counts: GridCount[];
-    denominator: number;
-}) {
-    const remainder =
-        denominator - counts.reduce((acc, count) => acc + count.count, 0);
-    const countsWithRemainder = [
-        ...counts,
-        { count: remainder, color: "white" },
-    ];
-    return (
-        <div
-            style={{
-                display: "grid",
-                width: "30rem",
-                height: "30rem",
-                gridTemplateRows: `repeat(${denominator}, 1fr)`,
-                gridTemplateColumns: `repeat(${denominator}, 1fr)`,
-                gridAutoFlow: orientation,
-                borderTop: "2px solid black",
-                borderLeft: "2px solid black",
-                borderBottom: separators.shouldShowHorizontal
-                    ? undefined
-                    : "2px solid black",
-                borderRight: separators.shouldShowVertical
-                    ? undefined
-                    : "2px solid black",
-            }}
-        >
-            {countsWithRemainder.map((count) =>
-                Array.from({ length: count.count }).map((_, index) => (
-                    <Fragment key={index}>
-                        {Array.from({ length: denominator }).map((_, index) => (
-                            <div
-                                style={{
-                                    backgroundColor: count.color,
-                                    borderBottom:
-                                        separators.shouldShowHorizontal
-                                            ? "2px solid black"
-                                            : undefined,
-                                    borderRight: separators.shouldShowVertical
-                                        ? "2px solid black"
-                                        : undefined,
-                                }}
-                                key={index}
-                            />
-                        ))}
+            <div style={gridStyle}>
+                {Array.from({ length: a.denominator }).map((_, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            backgroundColor:
+                                index < a.numerator ? red : "white",
+                            gridRow: "1 / -1",
+                        }}
+                    />
+                ))}
+            </div>
+            <div style={gridStyle}>
+                {Array.from({ length: b.denominator }).map((_, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            backgroundColor:
+                                index < b.numerator ? blue : "white",
+                            gridColumn: "1 / -1",
+                        }}
+                    />
+                ))}
+            </div>
+            <div style={gridStyle}>
+                {Array.from({ length: b.denominator }).map((_, bIndex) => (
+                    <Fragment key={bIndex}>
+                        {Array.from({ length: a.denominator }).map(
+                            (_, aIndex) => (
+                                <div
+                                    key={aIndex}
+                                    style={{
+                                        backgroundColor: getColor(
+                                            a,
+                                            b,
+                                            aIndex,
+                                            bIndex
+                                        ),
+                                    }}
+                                />
+                            )
+                        )}
                     </Fragment>
-                ))
-            )}
+                ))}
+            </div>
         </div>
     );
+}
+
+function getColor(a: Fraction, b: Fraction, aIndex: number, bIndex: number) {
+    if (bIndex < b.numerator) {
+        return blue;
+    }
+    const bottomBlockIndex =
+        aIndex * (b.denominator - b.numerator) + (bIndex - b.numerator);
+    const numRedBlocks = a.numerator * b.denominator;
+    console.log(a, b, aIndex, bIndex, bottomBlockIndex, numRedBlocks);
+    if (bottomBlockIndex < numRedBlocks) {
+        return red;
+    }
+    return "white";
 }
 
 export default App;
