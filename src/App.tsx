@@ -1,4 +1,5 @@
 import { useState, Fragment } from "react";
+import { IconStarFilled, IconMoonFilled } from "@tabler/icons-react";
 
 const expressionPattern =
     /^\s*(?<numerator1>\d+)\s*\/(?<denominator1>\d+)\s*\+\s*(?<numerator2>\d+)\s*\/(?<denominator2>\d+)\s*$/;
@@ -90,8 +91,15 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
                             backgroundColor:
                                 index < a.numerator ? red : "white",
                             gridRow: "1 / -1",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}
-                    />
+                    >
+                        {index < a.numerator && (
+                            <IconStarFilled color="white" />
+                        )}
+                    </div>
                 ))}
             </div>
             <div style={gridStyle}>
@@ -102,27 +110,42 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
                             backgroundColor:
                                 index < b.numerator ? blue : "white",
                             gridColumn: "1 / -1",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}
-                    />
+                    >
+                        {index < b.numerator && (
+                            <IconMoonFilled color="white" />
+                        )}
+                    </div>
                 ))}
             </div>
             <div style={gridStyle}>
                 {Array.from({ length: b.denominator }).map((_, bIndex) => (
                     <Fragment key={bIndex}>
                         {Array.from({ length: a.denominator }).map(
-                            (_, aIndex) => (
-                                <div
-                                    key={aIndex}
-                                    style={{
-                                        backgroundColor: getColor(
-                                            a,
-                                            b,
-                                            aIndex,
-                                            bIndex
-                                        ),
-                                    }}
-                                />
-                            )
+                            (_, aIndex) => {
+                                const color = getColor(a, b, aIndex, bIndex);
+                                return (
+                                    <div
+                                        key={aIndex}
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            backgroundColor: color,
+                                        }}
+                                    >
+                                        {color === red && (
+                                            <IconStarFilled color="white" />
+                                        )}
+                                        {color === blue && (
+                                            <IconMoonFilled color="white" />
+                                        )}
+                                    </div>
+                                );
+                            }
                         )}
                     </Fragment>
                 ))}
@@ -135,13 +158,19 @@ function getColor(a: Fraction, b: Fraction, aIndex: number, bIndex: number) {
     if (bIndex < b.numerator) {
         return blue;
     }
-    const bottomBlockIndex =
-        aIndex * (b.denominator - b.numerator) + (bIndex - b.numerator);
-    const numRedBlocks = a.numerator * b.denominator;
-    if (bottomBlockIndex < numRedBlocks) {
+    const segmentSize = gcd(a.denominator, b.denominator);
+    const bottomSegmentIndex =
+        Math.floor(aIndex / segmentSize) * (b.denominator - b.numerator) +
+        (bIndex - b.numerator);
+    const numRedSegments = (a.numerator * b.denominator) / segmentSize;
+    if (bottomSegmentIndex < numRedSegments) {
         return red;
     }
     return "white";
+}
+
+function gcd(a: number, b: number): number {
+    return b === 0 ? a : gcd(b, a % b);
 }
 
 export default App;
