@@ -78,8 +78,8 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
         border: "2px solid #242424",
         gap: "2px",
         backgroundColor: "#242424",
-        gridTemplateRows: `repeat(${b.denominator}, ${visualScale}rem)`,
-        gridTemplateColumns: `repeat(${a.denominator}, ${visualScale}rem)`,
+        gridTemplateRows: `repeat(${b.denominator}, 3rem)`,
+        gridTemplateColumns: `repeat(${a.denominator}, minmax(0, 3rem))`,
     };
 
     const numOverflowBlocks =
@@ -94,6 +94,7 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
                 flexDirection: "row",
                 gap: "1rem",
                 alignItems: "start",
+                flexWrap: "wrap",
             }}
         >
             <div style={gridStyle}>
