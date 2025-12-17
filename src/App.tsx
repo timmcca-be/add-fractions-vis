@@ -75,9 +75,9 @@ function ExpressionDisplay({ a, b }: { a: Fraction; b: Fraction }) {
 
     const gridStyle = {
         display: "grid",
-        border: "2px solid black",
+        border: "2px solid #242424",
         gap: "2px",
-        backgroundColor: "black",
+        backgroundColor: "#242424",
         gridTemplateRows: `repeat(${b.denominator}, ${visualScale}rem)`,
         gridTemplateColumns: `repeat(${a.denominator}, ${visualScale}rem)`,
     };
