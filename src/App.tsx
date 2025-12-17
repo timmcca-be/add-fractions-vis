@@ -60,7 +60,6 @@ interface Fraction {
     denominator: number;
 }
 
-const visualScale = 3;
 const blue = "#08f";
 const red = "#f44";
 
